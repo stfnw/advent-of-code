@@ -1,0 +1,10 @@
+# zig
+.zig-cache/
+zig-out/
+
+# haskell
+dist-newstyle/
+
+# rust
+Cargo.lock
+target/
