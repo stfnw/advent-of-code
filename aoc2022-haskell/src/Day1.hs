@@ -2,7 +2,7 @@
 
 module Day1 where
 
-import Data.List (sort)
+import Data.List (sortBy)
 
 run :: IO ()
 run = do
@@ -18,13 +18,13 @@ runPart2 = runTopElves 3
 
 runTopElves :: Int -> String -> Int
 runTopElves ntop contents =
-    sum $
-        take ntop $
-            reverse $
-                sort $
-                    map
-                        (sum . map (read :: String -> Int))
-                        (foldl foldF [] $ lines contents)
+    sum $ take ntop
+        $ sortBy (flip compare)
+        $ map (sum . map read)
+        $ groupLinesInParagraph contents
+
+groupLinesInParagraph :: String -> [[String]]
+groupLinesInParagraph = foldl foldF [] . lines
   where
     foldF :: [[String]] -> String -> [[String]]
     foldF [] _ = [[]]
