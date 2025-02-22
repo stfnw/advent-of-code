@@ -11,6 +11,7 @@ run :: IO ()
 run = do
     contents <- readFile "../../advent-of-code-data/aoc2022/Day3.txt"
     putStrLn $ "Day3 part1: " ++ show (runPart1 contents)
+    putStrLn $ "Day3 part2: " ++ show (runPart2 contents)
 
 -- Use u64 as a hash-map for the <64 lower and uppercase letters that we need
 -- to keep track of.
@@ -49,15 +50,31 @@ intersection (Compartment a) (Compartment b) = Compartment (a .&. b)
 slice :: Int -> Int -> [a] -> [a]
 slice from to = take (to - from) . drop from
 
-splitHalf :: String -> (Compartment, Compartment)
+splitHalf :: String -> [String]
 splitHalf s =
     let len = length s
         half = len `div` 2
-     in (parseCompartment $ slice 0 half s, parseCompartment $ slice half len s)
+     in [slice 0 half s, slice half len s]
+
+chunk :: Int -> [a] -> [[a]]
+chunk _ [] = []
+chunk n xs = take n xs : chunk n (drop n xs)
 
 runPart1 :: String -> Int
 runPart1 content =
     lines content
-        & map (getPriorities . uncurry intersection . splitHalf)
+        & map (map parseCompartment . splitHalf)
+        & map (foldl intersection (Compartment (maxBound :: Word64)))
+        & map getPriorities
+        & mconcat
+        & sum
+
+runPart2 :: String -> Int
+runPart2 content =
+    lines content
+        & chunk 3
+        & map (map parseCompartment)
+        & map (foldl intersection (Compartment (maxBound :: Word64)))
+        & map getPriorities
         & mconcat
         & sum
