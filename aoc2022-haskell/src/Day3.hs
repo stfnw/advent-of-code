@@ -4,8 +4,13 @@ module Day3 where
 
 import Data.Bits (shiftL, (.&.), (.|.))
 import Data.Char (chr, ord)
-import Data.Function ((&))
 import Data.Word (Word64)
+
+-- left-to-right readable composition operations
+(.>) :: (a -> b) -> (b -> c) -> a -> c
+(.>) = flip (.)
+(|>) :: a -> (a -> b) -> b
+(|>) = flip ($)
 
 run :: IO ()
 run = do
@@ -35,8 +40,8 @@ getPriorityFromIndex i = i + 1
 getPriorities :: Compartment -> [Int]
 getPriorities (Compartment c) =
     [0 .. 26 * 2]
-        & filter (\i -> c .&. shiftL 1 i /= 0)
-        & map getPriorityFromIndex
+        |> filter (\i -> c .&. shiftL 1 i /= 0)
+        |> map getPriorityFromIndex
 
 parseCompartment :: String -> Compartment
 parseCompartment =
@@ -63,18 +68,22 @@ chunk n xs = take n xs : chunk n (drop n xs)
 runPart1 :: String -> Int
 runPart1 content =
     lines content
-        & map (map parseCompartment . splitHalf)
-        & map (foldl intersection (Compartment (maxBound :: Word64)))
-        & map getPriorities
-        & mconcat
-        & sum
+        |> map splitHalf
+        |> processCommon
 
 runPart2 :: String -> Int
 runPart2 content =
     lines content
-        & chunk 3
-        & map (map parseCompartment)
-        & map (foldl intersection (Compartment (maxBound :: Word64)))
-        & map getPriorities
-        & mconcat
-        & sum
+        |> chunk 3
+        |> processCommon
+
+processCommon :: [[String]] -> Int
+processCommon groups =
+    groups
+        |> map
+            ( map parseCompartment
+                .> foldl intersection (Compartment (maxBound :: Word64))
+                .> getPriorities
+            )
+        |> mconcat
+        |> sum
