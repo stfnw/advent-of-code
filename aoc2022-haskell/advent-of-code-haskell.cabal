@@ -65,6 +65,7 @@ executable advent-of-code-haskell
                  , Day2
                  , Day3
                  , Day4
+                 , Day5A
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
